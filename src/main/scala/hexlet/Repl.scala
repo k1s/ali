@@ -3,7 +3,6 @@ package hexlet
 object Repl extends App {
 
   def repl: Unit = {
-
     implicit val env = Environment.root
     val console = System.console
 

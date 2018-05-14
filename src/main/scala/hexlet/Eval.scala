@@ -8,7 +8,7 @@ object Eval {
       case Fun(fun, args) =>
         fun match {
           case name: Name =>
-            applyF(name, args)
+            applyF(name, args.map(eval))
           case _ =>
             ???
         }
@@ -20,14 +20,6 @@ object Eval {
     if (args.size == 1)
       eval(args.head)
     else
-      name match {
-        case Add =>
-          args.head match {
-            case Num(n) =>
-              Num(n + applyF(name, args.tail).asInstanceOf[Num].n)
-            case expr =>
-              Num(applyF(name, Seq(expr)).asInstanceOf[Num].n + applyF(name, args.tail).asInstanceOf[Num].n)
-          }
-      }
+      env.get(name)(args)
 
 }

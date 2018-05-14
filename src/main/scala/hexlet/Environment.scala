@@ -1,23 +1,30 @@
 package hexlet
 
+import hexlet.Expr.ExprFun
+
 import scala.collection.mutable
 
 class Environment(val parent: Option[Environment]) {
 
-  val map = mutable.Map[Name, Expr]()
+  private val map = mutable.Map[Name, ExprFun]()
 
-  def get(name: Name): Option[Expr] =
-    if (map.contains(name))
-      map.get(name)
-    else
-      parent.fold(throw new RuntimeException(s"$name is not defined!"))(_.get(name))
+  private def getFromParent(name: Name): ExprFun = parent match {
+    case Some(m) => m.get(name)
+    case _ => throw new RuntimeException(s"$name is not defined!")
+  }
 
-  def add(name: Name, value: Expr): Option[Expr] = map.put(name, value)
+  def get(name: Name): ExprFun = map.getOrElse(name, getFromParent(name))
+
+  def add(name: Name, value: ExprFun): Option[ExprFun] = map.put(name, value)
 
 }
 
 object Environment {
 
-  def root: Environment = new Environment(None)
+  val root: Environment = {
+    val env = new Environment(None)
+    env.add(Add, Num.applyNum(Num.add))
+    env
+  }
 
 }
