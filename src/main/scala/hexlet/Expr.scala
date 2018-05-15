@@ -8,11 +8,14 @@ case class Fun(expr: Expr, args: Seq[Expr]) extends Expr
 
 sealed trait Atom extends Expr
 
-case class Num(n: BigInt) extends Atom
+case class Num(n: Double) extends Atom
 
 class Name(s: String) extends Atom
 
 case object Add extends Name("+")
+case object Sub extends Name("-")
+case object Mul extends Name("*")
+case object Div extends Name("/")
 
 object Expr {
 
@@ -27,6 +30,9 @@ object Num {
   val zero = Num(0)
 
   val add: NumFun = (n1, n2) => Num(n1.n + n2.n)
+  val sub: NumFun = (n1, n2) => Num(n1.n - n2.n)
+  val mul: NumFun = (n1, n2) => Num(n1.n * n2.n)
+  val div: NumFun = (n1, n2) => Num(n1.n / n2.n)
 
   def applyNum(f: NumFun): ExprFun = { case args: Seq[Num] =>
     args.tail.foldLeft(args.head)(f) }

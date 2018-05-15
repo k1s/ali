@@ -5,7 +5,7 @@ import hexlet.Expr.ExprFun
 import scala.collection.mutable
 
 class Environment(val parent: Option[Environment]) {
-
+//todo immutable?
   private val map = mutable.Map[Name, ExprFun]()
 
   private def getFromParent(name: Name): ExprFun = parent match {
@@ -24,6 +24,9 @@ object Environment {
   val root: Environment = {
     val env = new Environment(None)
     env.add(Add, Num.applyNum(Num.add))
+    env.add(Sub, Num.applyNum(Num.sub))
+    env.add(Mul, Num.applyNum(Num.mul))
+    env.add(Div, Num.applyNum(Num.div))
     env
   }
 

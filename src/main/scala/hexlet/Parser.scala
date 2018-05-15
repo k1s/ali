@@ -14,7 +14,7 @@ object Parser extends JavaTokenParsers {
 
   def name: Parser[Name] = "[+]".r ^^ { _ => Add}
 
-  def number: Parser[Num] = wholeNumber ^^ { x => Num(BigInt(x)) }
+  def number: Parser[Num] = wholeNumber ^^ { x => Num(x.toDouble) }
 
   def atom: Parser[Atom] = number | name
 
