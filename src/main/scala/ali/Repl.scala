@@ -1,9 +1,9 @@
-package hexlet
+package ali
 
 object Repl extends App {
 
   def repl: Unit = {
-    implicit val env = Environment.root
+    implicit val env = Env.root
     val console = System.console
 
     while (true) {

@@ -1,6 +1,7 @@
-package hexlet
+package ali
 
-import hexlet.Expr.ExprFun
+import ali.Expr.ExprFun
+
 
 sealed trait Expr
 
@@ -10,15 +11,22 @@ trait Atom extends Expr
 
 case class Id(id: String) extends Atom
 
-case class Fun(args: Seq[Id], body: Expr) extends Expr
+case class Lambda(args: Seq[Id], body: Expr) extends Expr
 
 case class Num(n: Double) extends Atom
 
 object Expr {
 
   type ExprFun = Seq[Expr] => Expr
+//todo here must be not such ugly way
+  def lift(a: Expr): ExprFun = (_: Seq[Expr]) => a
+
+  implicit class ExprFunOps(exprFun: ExprFun) {
+    def const = exprFun.apply(Seq())
+  }
 
 }
+
 
 object Num {
 
@@ -31,8 +39,10 @@ object Num {
   val mul: NumFun = (n1, n2) => Num(n1.n * n2.n)
   val div: NumFun = (n1, n2) => Num(n1.n / n2.n)
 
-  def applyNum(f: NumFun): ExprFun = { case args: Seq[Num] =>
-    args.tail.foldLeft(args.head)(f) }
+  def applyNum(f: NumFun): ExprFun = {
+      case nums: Seq[Num] =>
+        nums.tail.foldLeft(nums.head)(f)
+    }
 
 }
 

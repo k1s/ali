@@ -1,4 +1,4 @@
-package hexlet
+package ali
 
 import scala.util.parsing.combinator.JavaTokenParsers
 
@@ -21,10 +21,10 @@ object Parser extends JavaTokenParsers {
   def apply: Parser[Apply] =
     "(" ~> expr ~ rep(expr) <~ ")" ^^ { case fun ~ args => Apply(fun, args) }
 
-  def fun: Parser[Fun] =
-    "(" ~> "\\" ~> rep(id) ~ expr <~ ")" ^^ { case args ~ expr => Fun(args, expr) }
+  def lambda: Parser[Lambda] =
+    "(" ~> "\\" ~> rep(id) ~ expr <~ ")" ^^ { case args ~ expr => Lambda(args, expr) }
 
-  def expr: Parser[Expr] = atom | apply | fun
+  def expr: Parser[Expr] = atom | apply | lambda
 
   def hexlet: Parser[Seq[Expr]] = rep(expr)
 
