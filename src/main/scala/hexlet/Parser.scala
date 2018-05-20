@@ -7,20 +7,24 @@ object Parser extends JavaTokenParsers {
   def parse(expr: String): Expr =
     parseAll(hexlet, expr) match {
       case Failure(msg, _) =>
-        throw new RuntimeException(s"Cannot into $msg!")
+        throw new RuntimeException(s"Cannot parse: $msg!")
       case Success(result, _) =>
         result.head //todo tail
     }
 
-  def name: Parser[Name] = "[+]".r ^^ { _ => Add}
+  def id: Parser[Id] = """[\p{Alnum}[+-/*//]]""".r ^^ { id => Id(id)}
 
   def number: Parser[Num] = wholeNumber ^^ { x => Num(x.toDouble) }
 
-  def atom: Parser[Atom] = number | name
+  def atom: Parser[Atom] = number | id
 
-  def fun: Parser[Fun] = "(" ~> expr ~ rep(expr) <~ ")" ^^ { case fun ~ args => Fun(fun, args) }
+  def apply: Parser[Apply] =
+    "(" ~> expr ~ rep(expr) <~ ")" ^^ { case fun ~ args => Apply(fun, args) }
 
-  def expr: Parser[Expr] = atom | fun
+  def fun: Parser[Fun] =
+    "(" ~> "\\" ~> rep(id) ~ expr <~ ")" ^^ { case args ~ expr => Fun(args, expr) }
+
+  def expr: Parser[Expr] = atom | apply | fun
 
   def hexlet: Parser[Seq[Expr]] = rep(expr)
 

@@ -5,9 +5,9 @@ object Eval {
 
   def eval(expr: Expr)(implicit env: Environment): Expr =
     expr match {
-      case Fun(fun, args) =>
+      case Apply(fun, args) =>
         fun match {
-          case name: Name =>
+          case name: Id =>
             applyF(name, args.map(eval))
           case _ =>
             ???
@@ -16,10 +16,10 @@ object Eval {
         expr
     }
 
-  def applyF(name: Name, args: Seq[Expr])(implicit env: Environment): Expr =
+  def applyF(name: Id, args: Seq[Expr])(implicit env: Environment): Expr =
     if (args.size == 1)
       eval(args.head)
     else
-      env.get(name)(args)
+      env.get(name.id)(args)
 
 }

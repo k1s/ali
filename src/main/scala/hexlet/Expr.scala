@@ -4,18 +4,15 @@ import hexlet.Expr.ExprFun
 
 sealed trait Expr
 
-case class Fun(expr: Expr, args: Seq[Expr]) extends Expr
+case class Apply(expr: Expr, args: Seq[Expr]) extends Expr
 
-sealed trait Atom extends Expr
+trait Atom extends Expr
+
+case class Id(id: String) extends Atom
+
+case class Fun(args: Seq[Id], body: Expr) extends Expr
 
 case class Num(n: Double) extends Atom
-
-class Name(s: String) extends Atom
-
-case object Add extends Name("+")
-case object Sub extends Name("-")
-case object Mul extends Name("*")
-case object Div extends Name("/")
 
 object Expr {
 
