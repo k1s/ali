@@ -24,7 +24,9 @@ object Parser extends JavaTokenParsers {
   def lambda: Parser[Lambda] =
     "(" ~> "\\" ~> rep(id) ~ expr <~ ")" ^^ { case args ~ expr => Lambda(args, expr) }
 
-  def expr: Parser[Expr] = atom | apply | lambda
+  def vec: Parser[Vec] = "[" ~> rep(expr) <~ "]" ^^ { exprs => Vec(exprs.toVector) }
+
+  def expr: Parser[Expr] = atom | apply | lambda | vec
 
   def hexlet: Parser[Seq[Expr]] = rep(expr)
 

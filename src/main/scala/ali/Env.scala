@@ -26,9 +26,9 @@ object Env {
   val root: Env =
     Env(
       Map(
-        "+" -> Num.applyNum(Num.add),
-        "-" -> Num.applyNum(Num.sub),
-        "*" -> Num.applyNum(Num.mul),
-        "/" -> Num.applyNum(Num.div)))
+        "+" -> Fold.add,
+        "-" -> Fold.sub,
+        "*" -> Fold.mul,
+        "/" -> Fold.div))
 
 }

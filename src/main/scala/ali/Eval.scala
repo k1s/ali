@@ -1,5 +1,7 @@
 package ali
 
+import Expr.implicits._
+
 
 object Eval {
 
@@ -17,12 +19,12 @@ object Eval {
             val lambdaEnv = lambdaArgs.map(_.id).zip(args.map(Expr.lift)).toMap
             eval(body)(Env(env, lambdaEnv))
         }
-      case n: Num =>
-        println(s"num $n")
-        n
       case Id(id) =>
         println(s"id $id")
         eval(env.get(id).const)
+      case other =>
+        println(s"num $other")
+        other
     }
   }
 

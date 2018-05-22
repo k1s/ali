@@ -5,6 +5,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class EvalSpec extends FlatSpec with Matchers {
 
   import Spec._
+  import Spec.implicits._
 
   implicit val env = Env.root
 
@@ -31,7 +32,11 @@ class EvalSpec extends FlatSpec with Matchers {
   it should "eval lambda" in {
     Eval.eval(Apply(parsedLambda, parsedArgs)) shouldEqual Num(7)
 
-    Eval.eval(Apply(parsedLambda, Seq(Apply(Id("+"), parsedArgs), Num(7)))) shouldEqual Num(14)
+    Eval.eval(Apply(parsedLambda, Seq(Apply("+", parsedArgs), 7))) shouldEqual Num(14)
+  }
+
+  it should "eval vecs" in {
+    Eval.eval(Apply("+", Seq(Vec(1), Vec(2, 3)))) shouldEqual Vec(1, 2, 3)
   }
 
 }
