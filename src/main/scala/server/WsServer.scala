@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.scaladsl._
 import akka.stream.{ActorMaterializer, OverflowStrategy}
-import server.actors.ReplActor
+import server.actors.WsActor
 import server.service._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -24,18 +24,18 @@ object WsServer {
           case LoginRequest(_, username, password) =>
             userService.verifyUser(username, password).map {
               case Some(user) =>
-                SuccessfulLoginResponse(user_type = user.$type)
+                SuccessfulLogin(user_type = user.$type)
               case None =>
-                FailedLoginResponse()
+                FailedLogin()
             }
         }
     }
 
   def route(url: String, userService: UserService)
            (implicit ec: ExecutionContext, mat: ActorMaterializer, system: ActorSystem): Route = {
-    val actor = system.actorOf(ReplActor.props())
+    val wsActor = system.actorOf(WsActor.props())
 
-    val in =
+    val sink =
       Flow[Message]
         .mapConcat {
           case tm: TextMessage =>
@@ -49,14 +49,14 @@ object WsServer {
             Nil
         }
         .mapAsync(42)(auth(_, userService))
-        .to(Sink.actorRef(actor, End))
+        .to(Sink.actorRef(wsActor, End))
 
-    val out =
+    val source =
       Source
         .actorRef(bufferSize = 42, overflowStrategy = OverflowStrategy.fail)
-        .mapMaterializedValue(actor ! WsHandler(_))
+        .mapMaterializedValue(subscriber => wsActor ! Subscriber(subscriber))
 
-    val wsFlow = Flow.fromSinkAndSource(in, out)
+    val wsFlow = Flow.fromSinkAndSource(sink, source)
 
     path(url) {
       get {

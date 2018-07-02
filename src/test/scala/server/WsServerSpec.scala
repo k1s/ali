@@ -28,8 +28,8 @@ class WsServerSpec extends BaseSpec with ScalatestRouteTest {
 
     val wsClient = WSProbe()
 
-    val failedLogin = FailedLoginResponse().asJson.toString
-    val successLogin = SuccessfulLoginResponse(user_type = user_type)
+    val failedLogin = FailedLogin().asJson.toString
+    val successLogin = SuccessfulLogin(user_type = user_type)
 
     WS(s"/$path", wsClient.flow) ~> route ~>
       check {
@@ -61,8 +61,7 @@ class WsServerSpec extends BaseSpec with ScalatestRouteTest {
 
       val wsClient = WSProbe()
 
-      val failedLogin = FailedLoginResponse().asJson.toString
-      val successLogin = SuccessfulLoginResponse(user_type = user_type)
+      val successLogin = SuccessfulLogin(user_type = user_type)
 
       WS(s"/$path", wsClient.flow) ~> route ~>
         check {

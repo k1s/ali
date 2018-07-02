@@ -16,8 +16,8 @@ sealed trait Protocol {
 case class InternalError($type: String = "error", error: String) extends Protocol
 
 case class LoginRequest($type: String = "login", username: String, password: String) extends Protocol
-case class FailedLoginResponse($type: String = "login_failed") extends Protocol
-case class SuccessfulLoginResponse($type: String = "login_successful", user_type: String) extends Protocol
+case class FailedLogin($type: String = "login_failed") extends Protocol
+case class SuccessfulLogin($type: String = "login_successful", user_type: String) extends Protocol
 
 case class Ping($type: String = "ping", seq: Int) extends Protocol
 case class Pong($type: String = "pong", seq: Int) extends Protocol
@@ -32,8 +32,8 @@ object Protocol {
   }
 
   implicit val encodeEnvelope: Encoder[Protocol] = Encoder.instance {
-    case f: FailedLoginResponse => f.asJson
-    case s: SuccessfulLoginResponse => s.asJson
+    case f: FailedLogin => f.asJson
+    case s: SuccessfulLogin => s.asJson
   }
 
   implicit val decodeEnvelope: Decoder[Protocol] =
@@ -56,4 +56,4 @@ object Protocol {
 
 }
 
-case class WsHandler(actor: ActorRef)
+case class Subscriber(actor: ActorRef)
