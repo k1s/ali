@@ -1,6 +1,7 @@
 package ali
 
 import ali.Expr.ExprFun
+import cats.Show
 
 sealed trait Expr
 
@@ -21,6 +22,12 @@ case class Num(n: Double) extends Atom
 object Expr {
 
   object implicits {
+
+    implicit val showExpr: Show[Expr]  = (expr: Expr) => expr match {
+      case Num(n) => n.toString
+      case Id(id) => id.toString
+      case other  => other.toString
+    }
 //todo here must be not such ugly way
     implicit class ExprFunOps(exprFun: ExprFun) {
       def const = exprFun.apply(Seq())

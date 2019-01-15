@@ -3,15 +3,17 @@ package ali
 import ali.Expr.ExprFun
 
 
-class Env(val parent: Option[Env], val map: Map[String, ExprFun]) {
+class Env(val parent: Option[Env], val current: Map[String, ExprFun]) {
 
-  //todo errors that not fail repl
-  private def getFromParent(name: String): ExprFun = parent match {
+  private def getFromParent(name: String): Either[String, ExprFun] = parent match {
     case Some(m) => m.get(name)
-    case _ => throw new RuntimeException(s"$name is not defined!")
+    case _       => Left(s"$name is not defined!")
   }
 
-  def get(name: String): ExprFun = map.getOrElse(name, getFromParent(name))
+  def get(name: String): Either[String, ExprFun] = current get name match {
+    case Some(v) => Right(v)
+    case None    => getFromParent(name)
+  }
 
 }
 

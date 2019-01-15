@@ -4,12 +4,12 @@ import scala.util.parsing.combinator.JavaTokenParsers
 
 object Parser extends JavaTokenParsers {
 
-  def parse(expr: String): Expr =
+  def parse(expr: String): Either[String, Expr] =
     parseAll(hexlet, expr) match {
       case Failure(msg, _) =>
-        throw new RuntimeException(s"Cannot parse: $msg!")
-      case Success(result, _) =>
-        result.head //todo tail
+        Left(s"Cannot parse: $msg!")
+      case Success(result, t) =>
+        Right(result.head)
     }
 
   def id: Parser[Id] = """[\p{Alnum}[+-/*//]]""".r ^^ { id => Id(id)}

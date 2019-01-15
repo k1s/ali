@@ -4,14 +4,16 @@ object Spec {
 
   object implicits {
 
-    implicit def numericToNum[N](num: N)(implicit ev: Numeric[N]): Num =
+    implicit def numericToNum[A](num: A)(implicit ev: Numeric[A]): Num =
       Num(ev.toDouble(num))
 
     implicit def strToId(str: String): Id = Id(str)
 
-  }
+    implicit class EitherOps[A, B](e: Either[A, B]) {
+      def get: B = e.toOption.get
+    }
 
-  val lambdaStr = """(\x y (+ x y))"""
+  }
 
   val parsedLambda =
     Lambda(
