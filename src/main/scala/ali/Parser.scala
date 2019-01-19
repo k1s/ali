@@ -1,20 +1,20 @@
 package ali
 
-import scala.util.parsing.combinator.JavaTokenParsers
+import scala.util.parsing.combinator.RegexParsers
 
-object Parser extends JavaTokenParsers {
+object Parser extends RegexParsers {
 
   def parse(expr: String): Either[String, Expr] =
     parseAll(hexlet, expr) match {
       case Failure(msg, _) =>
         Left(s"Cannot parse: $msg!")
-      case Success(result, t) =>
+      case Success(result, _) =>
         Right(result.head)
     }
 
-  def id: Parser[Id] = """[\p{Alnum}[+-/*//]]""".r ^^ { id => Id(id)}
+  def id: Parser[Id] = """[a-zA-Z-_+*\/][a-zA-Z0-9]*""".r ^^ { id => Id(id)}
 
-  def number: Parser[Num] = wholeNumber ^^ { x => Num(x.toDouble) }
+  def number: Parser[Num] = """(0|[1-9]\d*)""".r ^^ { x => Num(x.toDouble) }
 
   def atom: Parser[Atom] = number | id
 

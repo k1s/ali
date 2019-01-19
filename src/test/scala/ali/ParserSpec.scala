@@ -23,6 +23,21 @@ class ParserSpec extends FlatSpec with Matchers {
     Parser.parse(s"($lambdaStr $argsStr)").get shouldEqual Apply(parsedLambda, parsedArgs)
   }
 
+  it should "parse long names" in {
+    val d = "dvigai"
+    val j = "jopoi"
+
+    val str = s"(+ $d $j)"
+    val expected = Apply(Id("+"), List(Id(d), Id(j)))
+
+    Parser.parse(str).get shouldEqual expected
+
+    val lstr = s"(\\$d $j (+ $d $j))"
+    val lexpected = Lambda(List(Id(d), Id(j)), expected)
+
+    Parser.parse(lstr).get shouldEqual lexpected
+  }
+
   it should "parse vecs" in {
     Parser.parse(s"[]").get shouldEqual Vec(Vector())
 
