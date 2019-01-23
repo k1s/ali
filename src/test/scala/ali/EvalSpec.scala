@@ -9,34 +9,48 @@ class EvalSpec extends FlatSpec with Matchers {
 
   implicit val env = Env.root
 
+  val evaluationOf: Expr => Expr = Eval.evalExpression(_).get
+
   it should "eval simple expressions" in {
-    Eval.eval(Apply(Id("+"), parsedArgs)).get shouldEqual Num(7)
+    evaluationOf(Apply("+", parsedArgs)) shouldEqual Num(7)
 
     val severalArgs = parsedArgs :+ Num(2)
 
-    Eval.eval(Apply(Id("+"), severalArgs)).get shouldEqual Num(9)
+    evaluationOf(Apply("+", severalArgs)) shouldEqual Num(9)
 
-    Eval.eval(Apply(Id("-"), severalArgs)).get shouldEqual Num(-3)
+    evaluationOf(Apply("-", severalArgs)) shouldEqual Num(-3)
 
-    Eval.eval(Apply(Id("*"), severalArgs)).get shouldEqual Num(24)
+    evaluationOf(Apply("*", severalArgs)) shouldEqual Num(24)
 
-    Eval.eval(Apply(Id("/"), severalArgs)).get shouldEqual Num(0.375)
+    evaluationOf(Apply("/", severalArgs)) shouldEqual Num(0.375)
   }
 
   it should "eval compound expressions" in {
-    val expr = Apply(Id("+"), parsedArgs)
+    val expr = Apply("+", parsedArgs)
 
-    Eval.eval(Apply(Id("+"), Seq(expr, expr, expr))).get shouldEqual Num(21)
+    evaluationOf(Apply("+", List(expr, expr, expr))) shouldEqual Num(21)
   }
 
   it should "eval lambda" in {
-    Eval.eval(Apply(parsedLambda, parsedArgs)).get shouldEqual Num(7)
+    evaluationOf(Apply(addLambda, parsedArgs)) shouldEqual Num(7)
 
-    Eval.eval(Apply(parsedLambda, Seq(Apply("+", parsedArgs), 7))).get shouldEqual Num(14)
+    evaluationOf(Apply(addLambda, List(Apply("+", parsedArgs), 7))) shouldEqual Num(14)
   }
 
   it should "eval vecs" in {
-    Eval.eval(Apply("+", Seq(Vec(1), Vec(2, 3)))).get shouldEqual Vec(1, 2, 3)
+    evaluationOf(Apply("+", List(Vec(1), Vec(2, 3)))) shouldEqual Vec(1, 2, 3)
+  }
+
+  it should "eval funs" in {
+    val eval =
+      for {
+        e0 <- Eval.eval(addFun)
+        e1 <- Eval.eval(Fun("lala", 3))(e0)
+        e2 <- Eval.eval(Fun("jopa", 4))(e1)
+        e3 <- Eval.eval(Apply("add", List("lala", "jopa")))(e2)
+      } yield e3
+
+    eval shouldEqual Result(Right(7))
   }
 
 }

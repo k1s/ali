@@ -9,18 +9,20 @@ class ParserSpec extends FlatSpec with Matchers {
 
   val lambdaStr = """(\x y (+ x y))"""
 
+  val parse: String => Expr = Parser.parse(_).get
+
   it should "parse simple expressions" in {
-    Parser.parse(s"(+ $argsStr)").get shouldEqual Apply(Id("+"), parsedArgs)
+    parse(s"(+ $argsStr)") shouldEqual Apply(Id("+"), parsedArgs)
 
-    Parser.parse(s"(- $argsStr)").get shouldEqual Apply(Id("-"), parsedArgs)
+    parse(s"(- $argsStr)") shouldEqual Apply(Id("-"), parsedArgs)
 
-    Parser.parse(s"(* $argsStr)").get shouldEqual Apply(Id("*"), parsedArgs)
+    parse(s"(* $argsStr)") shouldEqual Apply(Id("*"), parsedArgs)
 
-    Parser.parse(s"(/ $argsStr)").get shouldEqual Apply(Id("/"), parsedArgs)
+    parse(s"(/ $argsStr)") shouldEqual Apply(Id("/"), parsedArgs)
 
-    Parser.parse(lambdaStr).get shouldEqual parsedLambda
+    parse(lambdaStr) shouldEqual addLambda
 
-    Parser.parse(s"($lambdaStr $argsStr)").get shouldEqual Apply(parsedLambda, parsedArgs)
+    parse(s"($lambdaStr $argsStr)") shouldEqual Apply(addLambda, parsedArgs)
   }
 
   it should "parse long names" in {
@@ -30,26 +32,31 @@ class ParserSpec extends FlatSpec with Matchers {
     val str = s"(+ $d $j)"
     val expected = Apply(Id("+"), List(Id(d), Id(j)))
 
-    Parser.parse(str).get shouldEqual expected
+    parse(str) shouldEqual expected
 
     val lstr = s"(\\$d $j (+ $d $j))"
     val lexpected = Lambda(List(Id(d), Id(j)), expected)
 
-    Parser.parse(lstr).get shouldEqual lexpected
+    parse(lstr) shouldEqual lexpected
   }
 
   it should "parse vecs" in {
-    Parser.parse(s"[]").get shouldEqual Vec(Vector())
+    parse(s"[]") shouldEqual Vec(Vector())
 
-    Parser.parse(s"[3]").get shouldEqual Vec(Vector(Num(3)))
+    parse(s"[3]") shouldEqual Vec(Vector(Num(3)))
 
-    Parser.parse(s"[3 42]").get shouldEqual Vec(Vector(Num(3), Num(42)))
+    parse(s"[3 42]") shouldEqual Vec(Vector(Num(3), Num(42)))
 
-    Parser.parse(s"[a b]").get shouldEqual Vec(Vector(Id("a"), Id("b")))
+    parse(s"[a b]") shouldEqual Vec(Vector(Id("a"), Id("b")))
 
-    Parser.parse(s"[[a b] c]").get shouldEqual Vec(Vector(Vec(Vector(Id("a"), Id("b"))), Id("c")))
+    parse(s"[[a b] c]") shouldEqual Vec(Vector(Vec(Vector(Id("a"), Id("b"))), Id("c")))
 
-    Parser.parse(s"[$lambdaStr $lambdaStr]").get shouldEqual Vec(Vector(parsedLambda, parsedLambda))
+    parse(s"[$lambdaStr $lambdaStr]") shouldEqual Vec(Vector(addLambda, addLambda))
+  }
+
+  it should "parse functions" in {
+    parse("(fn f1 2)") shouldEqual Fun(Id("f1"), Num(2))
+    parse("(fn add (\\x y (+ x y)))") shouldEqual addFun
   }
 
 }

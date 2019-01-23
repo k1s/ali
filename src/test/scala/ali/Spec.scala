@@ -15,7 +15,7 @@ object Spec {
 
   }
 
-  val parsedLambda =
+  val addLambda =
     Lambda(
       List(Id("x"), Id("y")),
       Apply(
@@ -24,6 +24,8 @@ object Spec {
 
   val argsStr = "3 4"
 
-  val parsedArgs = Seq(Num(3), Num(4))
+  val parsedArgs = List(Num(3), Num(4))
+
+  val addFun = Fun(Id("add"), addLambda)
 
 }

@@ -1,27 +1,29 @@
 package ali
 
 import cats.implicits._
-import Expr.implicits._
+import EvalSyntax.resultShow
 
 object Repl extends App {
 
   lazy val error = "Unexpected error"
 
-  def readEval(nextLine: String)(implicit env: Env) =
-    Parser.parse(nextLine).flatMap(Eval.eval) match {
-        case Left(l) =>
-          s"$error: $l"
-        case Right(r) =>
-          r.show
-      }
+  def readEval(nextLine: String)(implicit env: Env): Eval =
+    Parser.parse(nextLine) match {
+        case Left(l)      => Result(Left(s"$error: $l"))
+        case Right(expr)  => Eval.eval(expr)
+    }
 
-  def repl(implicit env: Env) = {
+  @scala.annotation.tailrec
+  def repl(implicit env: Env): Unit = {
     val console = System.console
+    val nextLine = console.readLine("ali>")
 
-    while (true) {
-      val nextLine = console.readLine("ali>")
-      val result = readEval(nextLine)
-      println(result)
+    readEval(nextLine) match {
+      case EnvUpdate(newEnv) =>
+        repl(newEnv)
+      case result: Result    =>
+        println(result.show)
+        repl(env)
     }
   }
 

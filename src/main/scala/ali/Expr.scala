@@ -1,13 +1,17 @@
 package ali
 
-import ali.Expr.ExprFun
+import Eval.ExprFun
 import cats.Show
 
 sealed trait Expr
 
-case class Apply(expr: Expr, args: Seq[Expr]) extends Expr
+case class Apply(expr: Expr, args: List[Expr]) extends Expr
 
-case class Lambda(args: Seq[Id], body: Expr) extends Expr
+case class Lambda(args: List[Id], body: Expr) extends Expr
+
+case class Fun(name: Id, body: Expr) extends Expr
+
+case class Defined(exprFun: ExprFun) extends Expr
 
 case class Vec(vs: Vector[Expr]) extends Expr
 
@@ -23,41 +27,17 @@ object Expr {
 
   object implicits {
 
-    implicit val showExpr: Show[Expr]  = (expr: Expr) => expr match {
+    implicit val showExpr: Show[Expr]  = _ match {
       case Num(n) => n.toString
       case Id(id) => id.toString
       case other  => other.toString
     }
-//todo here must be not such ugly way
-    implicit class ExprFunOps(exprFun: ExprFun) {
-      def const = exprFun.apply(Seq())
-    }
 
   }
 
-  type ExprFun = Seq[Expr] => Expr
-//todo here must be not such ugly way
-  def lift(a: Expr): ExprFun = (_: Seq[Expr]) => a
-
 }
 
-object Fold {
 
-  type Fold = (Expr, Expr) => Expr
-
-  def fold(f: Fold): ExprFun = (exprs: Seq[Expr]) =>
-    exprs.tail.foldLeft(exprs.head)(f)
-
-  val add: ExprFun = fold {
-    case (n1: Num, n2: Num) => Num(n1.n + n2.n)
-    case (v1: Vec, v2: Vec) => Vec(v1.vs ++ v2.vs)
-  }
-
-  val sub: ExprFun = fold { case (n1: Num, n2: Num) => Num(n1.n - n2.n) }
-  val mul: ExprFun = fold { case (n1: Num, n2: Num) => Num(n1.n * n2.n) }
-  val div: ExprFun = fold { case (n1: Num, n2: Num) => Num(n1.n / n2.n) }
-
-}
 
 
 
