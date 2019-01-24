@@ -23,15 +23,18 @@ case class Id(id: String) extends Atom
 
 case class Num(n: Double) extends Atom
 
+case class Bool(b: Boolean) extends Atom
+
 object Expr {
 
   object implicits {
 
-    implicit val showExpr: Show[Expr]  = _ match {
-      case Num(n) => n.toString
-      case Id(id) => id.toString
-      case other  => other.toString
-    }
+    implicit val show: Show[Expr]  = _.toString
+
+    implicit val ordering: Ordering[Expr] = (e1, e2) =>
+      (e1, e2) match {
+        case (Num(n1), Num(n2)) => n1.compareTo(n2)
+      }
 
   }
 

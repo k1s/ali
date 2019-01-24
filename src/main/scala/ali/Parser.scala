@@ -12,7 +12,7 @@ object Parser extends RegexParsers {
         Right(result.head)
     }
 
-  def id: Parser[Id] = """[a-zA-Z-_+*\/][a-zA-Z0-9]*""".r ^^ { id => Id(id)}
+  def id: Parser[Id] = """[a-zA-Z-_+*=<>\/][a-zA-Z0-9]*""".r ^^ { id => Id(id)}
 
   def number: Parser[Num] = """(0|[1-9]\d*)""".r ^^ { x => Num(x.toDouble) }
 

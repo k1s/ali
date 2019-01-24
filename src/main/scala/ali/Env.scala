@@ -1,6 +1,7 @@
 package ali
 
-import ali.Eval.ExprFun
+import Eval.ExprFun
+import Expr.implicits.ordering
 
 class Env(val parent: Option[Env], val current: Map[String, Expr]) {
 
@@ -28,8 +29,16 @@ object Env {
   def apply(map: Map[String, Expr]): Env =
     new Env(None, map)
 
-  def fold(f: (Expr, Expr) => Expr): ExprFun =
-    (exprs: Seq[Expr]) => exprs.tail.foldLeft(exprs.head)(f)
+  def fold(f: (Expr, Expr) => Expr): ExprFun = exprs =>
+    exprs.tail.foldLeft(exprs.head)(f)
+
+  def predicateFold(predicate: (Expr, Expr) => Boolean): ExprFun = exprs => {
+      val (bool, _) = exprs.tail.foldLeft((true, exprs.head)) { case ((acc, prev), next) =>
+        (acc && predicate(prev, next), next)
+      }
+
+      Bool(bool)
+    }
 
   val add: ExprFun = fold {
     case (n1: Num, n2: Num) => Num(n1.n + n2.n)
@@ -40,12 +49,20 @@ object Env {
   val mul: ExprFun = fold { case (n1: Num, n2: Num) => Num(n1.n * n2.n) }
   val div: ExprFun = fold { case (n1: Num, n2: Num) => Num(n1.n / n2.n) }
 
+  val equals: ExprFun = predicateFold { (e1, e2) => e1 == e2 }
+  val less: ExprFun = predicateFold { (e1, e2) => Ordering[Expr].lt(e1, e2) }
+  val greater: ExprFun = predicateFold { (e1, e2) => Ordering[Expr].gt(e1, e2) }
+
   val root: Env =
     Env(
       Map("+" -> Defined(add),
           "-" -> Defined(sub),
           "*" -> Defined(mul),
-          "/" -> Defined(div))
+          "/" -> Defined(div),
+          "=" -> Defined(equals),
+          "<" -> Defined(less),
+          ">" -> Defined(greater),
+      )
     )
 
 }

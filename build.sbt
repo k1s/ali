@@ -11,7 +11,6 @@ val deps = Seq(
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.0"
 )
 
-
 val testDeps = Seq(
   "org.scalatest" %% "scalatest" % "3.0.1"
 ).map(_ % "test")
