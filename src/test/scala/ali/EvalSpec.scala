@@ -65,6 +65,16 @@ class EvalSpec extends WordSpec with Matchers {
       evaluationOf(Apply("<", List(2, 3, 4))) shouldEqual Bool(true)
     }
 
+    "eval closures" in {
+      val closure =
+        Apply(
+          Lambda(List("x"), Lambda(List("y"), Apply("+",List("x", "y")))),
+          List(Num(2.0), Num(3.0))
+        )
+
+      evaluationOf(closure) shouldEqual Result(Right(5))
+    }
+
   }
 
 }

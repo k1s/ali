@@ -34,8 +34,11 @@ object Eval {
 
   def eval(expr: Expr)(implicit env: Env): Eval =
     expr match {
-      case fn: Fun => EnvUpdate(env.addFun(fn))
-      case _       => Result(evalExpression(expr))
+      case fn: Fun =>
+        println(s"env update: $fn")
+        EnvUpdate(env.addFun(fn))
+      case _ =>
+        Result(evalExpression(expr))
     }
 
   def evalExpression(expr: Expr)(implicit env: Env): Either[String, Expr] = {
@@ -44,9 +47,7 @@ object Eval {
       case Apply(fun, args) =>
         fun match {
           case name: Id =>
-            println(s"apply f name $name")
-            println(s"apply f args $args")
-
+            println(s"apply fun name: $name args: $args")
             env.get(name.id) match {
               case Right(f) =>
                 args.traverse(e => evalExpression(e)(env)).flatMap {
@@ -55,22 +56,39 @@ object Eval {
               case left => left
             }
           case Lambda(lambdaArgs, body) =>
-            println(s"apply lambda $fun $args")
-            //todo check arity
-            val lambdaEnv = lambdaArgs.map(_.id).zip(args).toMap
-            evalExpression(body)(Env(env, lambdaEnv))
+            println(s"apply \\ lambda: $fun args: $args")
+            closure(body, lambdaArgs.map(_.id), args, Map(), env)
         }
       case Id(id) =>
         println(s"id $id")
         env.get(id).flatMap(evalExpression)
+      case n: Num =>
+        println(s"num $n")
+        Right(n)
       case other =>
-        println(s"num $other")
-        Right(other)
+        Left(s"Evaluation of $other is impossibru!!!")
     }
   }
 
-  def applyF(toApply: Expr, args: List[Expr])(
-      implicit env: Env): Either[String, Expr] =
+  @scala.annotation.tailrec
+  def closure(body: Expr,
+              ids: List[String],
+              exprs: List[Expr],
+              closureEnv: Map[String, Expr],
+              env: Env): Either[String, Expr] =
+    (ids, exprs) match {
+      case (Nil, Nil) =>
+        evalExpression(body)(Env(env, closureEnv))
+      case (Nil, exs_) =>
+        println(s"lambda env $closureEnv")
+        evalExpression(Apply(body, exs_))(Env(env, closureEnv))
+      case (idsHead :: idsTail, exsHead :: exsTail) =>
+        closure(body, idsTail, exsTail, closureEnv + (idsHead -> exsHead), env)
+      case _ =>
+        Left(s"Lambda args size error: $ids != $exprs")
+    }
+
+  def applyF(toApply: Expr, args: List[Expr])(implicit env: Env): Either[String, Expr] =
     toApply match {
       case Defined(f) =>
         Right(f(args))

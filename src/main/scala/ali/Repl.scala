@@ -20,6 +20,8 @@ object Repl extends App {
 
     readEval(nextLine) match {
       case EnvUpdate(newEnv) =>
+        //todo add logger.debug
+        println(s"env: ${newEnv.current}")
         repl(newEnv)
       case result: Result    =>
         println(result.show)
