@@ -40,6 +40,7 @@ class EvalSpec extends WordSpec with Matchers {
     }
 
     "eval vecs" in {
+      //TODO FIX
       evaluationOf(Apply("+", List(Vec(1), Vec(2, 3)))) shouldEqual Vec(1, 2, 3)
     }
 
@@ -72,7 +73,7 @@ class EvalSpec extends WordSpec with Matchers {
           List(Num(2.0), Num(3.0))
         )
 
-      evaluationOf(closure) shouldEqual Result(Right(5))
+      evaluationOf(closure) shouldEqual Num(5)
     }
 
   }
