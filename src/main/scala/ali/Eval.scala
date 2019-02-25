@@ -62,9 +62,9 @@ object Eval {
       case Id(id) =>
         println(s"id $id")
         env.get(id).flatMap(evalExpression)
-      case n: Num =>
-        println(s"num $n")
-        Right(n)
+      case f: Foldable =>
+        println(s"foldable $f")
+        Right(f)
       case other =>
         Left(s"Evaluation of $other is impossibru!!!")
     }
@@ -91,8 +91,10 @@ object Eval {
   def applyF(toApply: Expr, args: List[Expr])(implicit env: Env): Either[String, Expr] =
     toApply match {
       case Defined(f) =>
+        println(s"defined $f args $args")
         Right(f(args))
       case l: Lambda =>
+        println(s"lambda $l")
         evalExpression(Apply(l, args))
       case other =>
         println(" ==== ERRORORO =======")

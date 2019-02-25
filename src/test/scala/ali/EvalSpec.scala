@@ -9,7 +9,10 @@ class EvalSpec extends WordSpec with Matchers {
 
   implicit val env = Env.root
 
-  val evaluationOf: Expr => Expr = Eval.evalExpression(_).get
+  val evaluationOf: Expr => Expr = Eval.evalExpression(_) match {
+    case Left(er) => throw new RuntimeException(er)
+    case Right(ok) => ok
+  }
 
   "Eval" should {
 
@@ -40,7 +43,6 @@ class EvalSpec extends WordSpec with Matchers {
     }
 
     "eval vecs" in {
-      //TODO FIX
       evaluationOf(Apply("+", List(Vec(1), Vec(2, 3)))) shouldEqual Vec(1, 2, 3)
     }
 
