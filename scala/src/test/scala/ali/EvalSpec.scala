@@ -78,6 +78,11 @@ class EvalSpec extends WordSpec with Matchers {
       evaluationOf(closure) shouldEqual Num(5)
     }
 
+    "eval cond" in {
+      evaluationOf(Apply("if", List(Apply("<", List(2, 3)),
+
+    }
+
   }
 
 }
