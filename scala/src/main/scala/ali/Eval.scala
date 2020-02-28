@@ -35,19 +35,16 @@ object Eval {
   def eval(expr: Expr)(implicit env: Env): Eval =
     expr match {
       case fn: Fun =>
-        println(s"env update: $fn")
         EnvUpdate(env.addFun(fn))
       case _ =>
         Result(evalExpression(expr))
     }
 
   def evalExpression(expr: Expr)(implicit env: Env): Either[String, Expr] = {
-    println(s"expr $expr")
     expr match {
       case Apply(fun, args) =>
         fun match {
           case name: Id =>
-            println(s"apply fun name: $name args: $args")
             env.get(name.id) match {
               case Right(f) =>
                 args.traverse(e => evalExpression(e)(env)).flatMap {
@@ -56,14 +53,11 @@ object Eval {
               case left => left
             }
           case Lambda(lambdaArgs, body) =>
-            println(s"apply \\ lambda: $fun args: $args")
             closure(body, lambdaArgs.map(_.id), args, Map(), env)
         }
       case Id(id) =>
-        println(s"id $id")
         env.get(id).flatMap(evalExpression)
       case f: Foldable =>
-        println(s"foldable $f")
         Right(f)
       case other =>
         Left(s"Evaluation of $other is impossibru!!!")
@@ -80,7 +74,6 @@ object Eval {
       case (Nil, Nil) =>
         evalExpression(body)(Env(env, closureEnv))
       case (Nil, exs_) =>
-        println(s"lambda env $closureEnv")
         evalExpression(Apply(body, exs_))(Env(env, closureEnv))
       case (idsHead :: idsTail, exsHead :: exsTail) =>
         closure(body, idsTail, exsTail, closureEnv + (idsHead -> exsHead), env)
@@ -91,16 +84,10 @@ object Eval {
   def applyF(toApply: Expr, args: List[Expr])(implicit env: Env): Either[String, Expr] =
     toApply match {
       case Defined(f) =>
-        println(s"defined $f args $args")
         Right(f(args))
       case l: Lambda =>
-        println(s"lambda $l")
         evalExpression(Apply(l, args))
       case other =>
-        println(" ==== ERRORORO =======")
-        println(" ==== ERRORORO =======")
-        println(" ==== ERRORORO =======")
-        println(other)
         Right(other)
     }
 
@@ -108,7 +95,7 @@ object Eval {
 
 object EvalSyntax {
 
-  implicit val resultShow: Show[Result] = _ match {
+  implicit val resultShow: Show[Result] = {
     case Result(Left(error)) => error
     case Result(Right(expr)) => expr.show
   }

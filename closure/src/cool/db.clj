@@ -1,4 +1,4 @@
-(ns closure.db
+(ns cool.db
   (:require [clojure.java.jdbc :as sql]))
 
 (defn db-spec [password] {:dbtype     "postgresql"

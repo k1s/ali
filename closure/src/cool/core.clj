@@ -1,7 +1,7 @@
-(ns closure.core
+(ns cool.core
   (:gen-class)
-  (:use [closure.load :as load]
-        [closure.db :as db]
+  (:use [cool.load :as load]
+        [cool.db :as db]
         [clojure.set :as set]))
 
 (defn -main [& args])
@@ -13,14 +13,3 @@
       (load/handle-process (set/rename-keys p {:process_id   :process
                                                :loading_unit :location})))))
 (flow)
-
-
-
-
-
-
-;(defn op [env [location process]]
-;  (do
-;    (flow (assoc env :process process :location location))
-;    (println)
-;    (println)))

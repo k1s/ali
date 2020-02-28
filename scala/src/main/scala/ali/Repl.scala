@@ -1,8 +1,5 @@
 package ali
 
-import cats.implicits._
-import EvalSyntax.resultShow
-
 object Repl extends App {
 
   lazy val error = "Unexpected error"
@@ -20,11 +17,8 @@ object Repl extends App {
 
     readEval(nextLine) match {
       case EnvUpdate(newEnv) =>
-        //todo add logger.debug
-        println(s"env: ${newEnv.current}")
         repl(newEnv)
-      case result: Result    =>
-        println(result.show)
+      case _    =>
         repl(env)
     }
   }

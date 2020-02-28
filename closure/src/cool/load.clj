@@ -1,4 +1,4 @@
-(ns closure.load
+(ns cool.load
   (:gen-class)
   (:use [slingshot.slingshot :only [throw+ try+]]
         [clojure.java.shell :only [sh]])

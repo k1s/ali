@@ -32,13 +32,7 @@ object Env {
   def fold(f: (Expr, Expr) => Expr): ExprFun = exprs =>
     exprs.tail.foldLeft(exprs.head)(f)
 
-  def predicateFold(predicate: (Expr, Expr) => Boolean): ExprFun = exprs => {
-      val (bool, _) = exprs.tail.foldLeft((true, exprs.head)) { case ((acc, prev), next) =>
-        (acc && predicate(prev, next), next)
-      }
 
-      Bool(bool)
-    }
 
   val add: ExprFun = fold {
     case (n1: Num, n2: Num) => Num(n1.n + n2.n)
@@ -48,6 +42,14 @@ object Env {
   val sub: ExprFun = fold { case (n1: Num, n2: Num) => Num(n1.n - n2.n) }
   val mul: ExprFun = fold { case (n1: Num, n2: Num) => Num(n1.n * n2.n) }
   val div: ExprFun = fold { case (n1: Num, n2: Num) => Num(n1.n / n2.n) }
+
+  def predicateFold(predicate: (Expr, Expr) => Boolean): ExprFun = exprs => {
+    val (bool, _) = exprs.tail.foldLeft((true, exprs.head)) { case ((acc, prev), next) =>
+      (acc && predicate(prev, next), next)
+    }
+
+    Bool(bool)
+  }
 
   val equals: ExprFun = predicateFold { (e1, e2) => e1 == e2 }
   val less: ExprFun = predicateFold { (e1, e2) => Ordering[Expr].lt(e1, e2) }
