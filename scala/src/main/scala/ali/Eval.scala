@@ -83,7 +83,7 @@ object Eval {
 
   def applyF(toApply: Expr, args: List[Expr])(implicit env: Env): Either[String, Expr] =
     toApply match {
-      case Defined(f) =>
+      case Predefined(f) =>
         Right(f(args))
       case l: Lambda =>
         evalExpression(Apply(l, args))

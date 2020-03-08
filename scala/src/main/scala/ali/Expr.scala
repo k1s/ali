@@ -13,7 +13,7 @@ case class Lambda(args: List[Id], body: Expr) extends Expr
 
 case class Fun(name: Id, body: Expr) extends Expr
 
-case class Defined(exprFun: ExprFun) extends Expr
+case class Predefined(exprFun: ExprFun) extends Expr
 
 case class Vec(vs: Vector[Expr]) extends Expr with Foldable
 

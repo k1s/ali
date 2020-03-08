@@ -32,8 +32,6 @@ object Env {
   def fold(f: (Expr, Expr) => Expr): ExprFun = exprs =>
     exprs.tail.foldLeft(exprs.head)(f)
 
-
-
   val add: ExprFun = fold {
     case (n1: Num, n2: Num) => Num(n1.n + n2.n)
     case (v1: Vec, v2: Vec) => Vec(v1.vs ++ v2.vs)
@@ -57,13 +55,13 @@ object Env {
 
   val root: Env =
     Env(
-      Map("+" -> Defined(add),
-          "-" -> Defined(sub),
-          "*" -> Defined(mul),
-          "/" -> Defined(div),
-          "=" -> Defined(equals),
-          "<" -> Defined(less),
-          ">" -> Defined(greater),
+      Map("+" -> Predefined(add),
+          "-" -> Predefined(sub),
+          "*" -> Predefined(mul),
+          "/" -> Predefined(div),
+          "=" -> Predefined(equals),
+          "<" -> Predefined(less),
+          ">" -> Predefined(greater),
       )
     )
 
