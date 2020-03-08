@@ -7,13 +7,15 @@ sealed trait Expr
 
 sealed trait Foldable
 
+case class Predefined(exprFun: ExprFun) extends Expr
+
 case class Apply(expr: Expr, args: List[Expr]) extends Expr
 
 case class Lambda(args: List[Id], body: Expr) extends Expr
 
 case class Fun(name: Id, body: Expr) extends Expr
 
-case class Predefined(exprFun: ExprFun) extends Expr
+case class If(test: Expr, thenExpr: Expr, elseExpr: Expr) extends Expr
 
 case class Vec(vs: Vector[Expr]) extends Expr with Foldable
 

@@ -4,6 +4,9 @@ import Expr.implicits._
 import cats.Show
 import cats.implicits._
 
+/*
+ * Could be result of evaluation or update of env like function addition
+ */
 sealed trait Eval {
 
   def map(f: Env => Env): Eval
@@ -42,6 +45,8 @@ object Eval {
 
   def evalExpression(expr: Expr)(implicit env: Env): Either[String, Expr] = {
     expr match {
+      case x: If =>
+        evalIf(x)
       case Apply(fun, args) =>
         fun match {
           case name: Id =>
@@ -91,13 +96,26 @@ object Eval {
         Right(other)
     }
 
-}
+  def evalIf(iF: If)(implicit env: Env): Either[String, Expr] =
+    evalExpression(iF.test) match {
+      case Right(Bool(b)) =>
+        if (b)
+          evalExpression(iF.thenExpr)
+        else
+          evalExpression(iF.elseExpr)
+      case Right(other) =>
+        Left(s"Condition of if should be boolean, but it's $other")
+      case other =>
+        other
+    }
 
-object EvalSyntax {
+  object EvalSyntax {
 
-  implicit val resultShow: Show[Result] = {
-    case Result(Left(error)) => error
-    case Result(Right(expr)) => expr.show
+    implicit val resultShow: Show[Result] = {
+      case Result(Left(error)) => error
+      case Result(Right(expr)) => expr.show
+    }
+
   }
 
 }

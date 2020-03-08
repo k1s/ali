@@ -58,8 +58,8 @@ class ParserSpec extends WordSpec with Matchers {
     }
 
     "parse functions" in {
-      parse("(fn f1 2)") shouldEqual Fun(Id("f1"), Num(2))
-      parse("(fn add (\\x y (+ x y)))") shouldEqual addFun
+      parse("(def f1 2)") shouldEqual Fun(Id("f1"), Num(2))
+      parse("(def add (\\x y (+ x y)))") shouldEqual addFun
     }
 
   }

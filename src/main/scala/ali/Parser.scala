@@ -21,15 +21,19 @@ object Parser extends RegexParsers {
   def apply: Parser[Apply] =
     "(" ~> expr ~ rep(expr) <~ ")" ^^ { case fun ~ args => Apply(fun, args) }
 
+  //TODO fn [x y z]
   def lambda: Parser[Lambda] =
     "(" ~> "\\" ~> rep(id) ~ expr <~ ")" ^^ { case args ~ expr => Lambda(args, expr) }
 
   def fun: Parser[Fun] =
-    "(" ~> "fn" ~> id ~ expr <~ ")" ^^ { case name ~ expr => Fun(name, expr) }
+    "(" ~> "def" ~> id ~ expr <~ ")" ^^ { case name ~ expr => Fun(name, expr) }
+
+  def iF: Parser[If] =
+    "(" ~> "if" ~> expr ~ expr ~ expr <~ ")" ^^ { case e1 ~ e2 ~ e3 => If(e1, e2, e3) }
 
   def vec: Parser[Vec] = "[" ~> rep(expr) <~ "]" ^^ { exprs => Vec(exprs.toVector) }
 
-  def expr: Parser[Expr] = atom | fun | apply | lambda | vec
+  def expr: Parser[Expr] = atom | iF | fun | apply | lambda | vec
 
   def hexlet: Parser[Seq[Expr]] = rep(expr)
 
