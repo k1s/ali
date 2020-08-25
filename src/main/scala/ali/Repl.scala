@@ -8,9 +8,10 @@ object Repl extends App with LazyLogging {
 
   def readEval(nextLine: String)(implicit env: Env): Eval =
     Parser.parse(nextLine) match {
-      case Left(l) => Result(Left(s"Parser error: $l"))
+      case Left(l) =>
+        Result(Left(s"Parser error: $l"))
       case Right(expr) =>
-        logger.debug(s"expr to eval:  $expr")
+        logger.trace(s"expr to eval:  $expr")
         try {
           Eval.eval(expr)
         } catch {

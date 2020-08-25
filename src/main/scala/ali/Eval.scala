@@ -3,42 +3,37 @@ package ali
 import Expr.implicits._
 import cats.Show
 import cats.implicits._
+import com.typesafe.scalalogging.LazyLogging
 
 /*
  * Could be result of evaluation or update of env like function addition
  */
 sealed trait Eval {
 
-  def map(f: Env => Env): Eval
-
-  def flatMap(f: Env => Eval): Eval
+  def let(f: Env => Eval): Eval
 
 }
 
 case class EnvUpdate(env: Env) extends Eval {
 
-  override def map(f: Env => Env) = EnvUpdate(f(env))
-
-  override def flatMap(f: Env => Eval) = f(env)
+  override def let(f: Env => Eval) = f(env)
 
 }
 
 case class Result(result: Either[String, Expr]) extends Eval {
 
-  override def map(f: Env => Env) = this
-
-  override def flatMap(f: Env => Eval) = this
+  override def let(f: Env => Eval) = this
 
 }
 
-object Eval {
+object Eval extends LazyLogging {
 
   type ExprFun = List[Expr] => Expr
 
   def eval(expr: Expr)(implicit env: Env): Eval =
     expr match {
-      case fn: Fun =>
-        EnvUpdate(env.addFun(fn))
+      case fn: Def =>
+        EnvUpdate(env.addDef(fn))
       case _ =>
         Result(evalExpression(expr))
     }
@@ -55,12 +50,15 @@ object Eval {
                 args.traverse(e => evalExpression(e)(env)).flatMap {
                   applyF(f, _)
                 }
-              case left => left
+              case left =>
+                logger.trace(s"no match in env for ${name.id}")
+                left
             }
           case Lambda(lambdaArgs, body) =>
-            closure(body, lambdaArgs.map(_.id), args, Map(), env)
+            closure(body, lambdaArgs.map(_.id).toList, args, Map(), env)
         }
       case Id(id) =>
+        logger.trace(s"getting id $id from env")
         env.get(id).flatMap(evalExpression)
       case f: Foldable =>
         Right(f)

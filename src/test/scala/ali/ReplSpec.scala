@@ -12,6 +12,12 @@ class ReplSpec extends WordSpec with Matchers {
       case other => throw new RuntimeException(other.toString)
     }
 
+  def envOf(command: String)(implicit env: Env): Env =
+    Repl.readEval(command)(env) match {
+      case EnvUpdate(env) => env
+      case other => throw new RuntimeException(other.toString)
+    }
+
   def errorOf(command: String)(implicit env: Env): String =
     Repl.readEval(command)(env) match {
       case Result(Left(er)) => er
@@ -24,7 +30,7 @@ class ReplSpec extends WordSpec with Matchers {
     "be fine" in {
       Repl.readEval("(+ 2 3 4 5)") shouldEqual Result(Right(Num(14.0)))
 
-      Repl.readEval("(_ 23r sfg)") shouldEqual Result(Left("_ is not defined!"))
+      Repl.readEval("(_ 23r sfg)") shouldEqual Result(Left("_ is not defined in env"))
     }
 
     "do ifs" in {
@@ -34,11 +40,23 @@ class ReplSpec extends WordSpec with Matchers {
     }
 
     "do lazy ifs" in {
-      val withP = Repl.readEval("(def p (\\x (p x)))").asInstanceOf[EnvUpdate].env
+      val withP = envOf("(def p (\\x (p x)))")
 
       runOf("(if (> 10 0) 0 (p 42))")(withP) shouldEqual Num(0.0)
     }
 
+    "run recursive funs" in {
+      val factorial = envOf("(def fac (\\n acc (if (= 1 n) acc (fac (- n 1) (* n acc)))))")
+
+      runOf("(fac 5 1)")(factorial) shouldEqual Num(120.0)
+    }
+
+//    "TODO run tail recursive funs" ignore not implemented yet {
+//      val factorial = Repl.readEval("(def fac (fn [n acc] (if (= 1 n) acc (recur (- n 1) (* n acc)))))").asInstanceOf[EnvUpdate].env
+//
+//      runOf("(fac 5000 1)")(factorial) shouldEqual Num(120.0)
+//    }
+//
   }
 
 }

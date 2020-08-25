@@ -11,9 +11,12 @@ case class Predefined(exprFun: ExprFun) extends Expr
 
 case class Apply(expr: Expr, args: List[Expr]) extends Expr
 
-case class Lambda(args: List[Id], body: Expr) extends Expr
+case class Lambda(args:List[Id], body: Expr) extends Expr
 
-case class Fun(name: Id, body: Expr) extends Expr
+/*
+  It's just relation between name(id) and anything, lambda or scalar
+ */
+case class Def(name: Id, expr: Expr) extends Expr
 
 case class If(test: Expr, thenExpr: Expr, elseExpr: Expr) extends Expr
 

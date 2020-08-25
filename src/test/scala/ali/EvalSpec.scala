@@ -47,15 +47,11 @@ class EvalSpec extends WordSpec with Matchers {
     }
 
     "eval funs" in {
-      val eval =
-        for {
-          e0 <- Eval.eval(addFun)
-          e1 <- Eval.eval(Fun("lala", 3))(e0)
-          e2 <- Eval.eval(Fun("jopa", 4))(e1)
-          e3 <- Eval.eval(Apply("add", List("lala", "jopa")))(e2)
-        } yield e3
-
-      eval shouldEqual Result(Right(7))
+      Eval.eval(addFun).let(env =>
+        Eval.eval(Def("lala", 3))(env).let( env =>
+         Eval.eval(Def("jopa", 4))(env).let( env =>
+           Eval.eval(Apply("add", List("lala", "jopa")))(env)
+      ))) shouldEqual Result(Right(7))
     }
 
     "eval predicates" in {

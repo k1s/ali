@@ -12,7 +12,7 @@ object Parser extends RegexParsers {
         Right(result.head)
     }
 
-  def id: Parser[Id] = """[a-zA-Z-_+*=<>\/][a-zA-Z0-9]*""".r ^^ { id => Id(id)}
+   def id: Parser[Id] = """[a-zA-Z-_+*=<>\/][a-zA-Z0-9]*""".r ^^ { id => Id(id)}
 
   def number: Parser[Num] = """(0|[1-9]\d*)""".r ^^ { x => Num(x.toDouble) }
 
@@ -21,19 +21,18 @@ object Parser extends RegexParsers {
   def apply: Parser[Apply] =
     "(" ~> expr ~ rep(expr) <~ ")" ^^ { case fun ~ args => Apply(fun, args) }
 
-  //TODO fn [x y z]
+  def vec: Parser[Vec] = "[" ~> rep(expr) <~ "]" ^^ { exprs => Vec(exprs.toVector) }
+
   def lambda: Parser[Lambda] =
     "(" ~> "\\" ~> rep(id) ~ expr <~ ")" ^^ { case args ~ expr => Lambda(args, expr) }
 
-  def fun: Parser[Fun] =
-    "(" ~> "def" ~> id ~ expr <~ ")" ^^ { case name ~ expr => Fun(name, expr) }
+  def `def`: Parser[Def] =
+    "(" ~> "def" ~> id ~ expr <~ ")" ^^ { case name ~ expr => Def(name, expr) }
 
-  def iF: Parser[If] =
+  def `if`: Parser[If] =
     "(" ~> "if" ~> expr ~ expr ~ expr <~ ")" ^^ { case e1 ~ e2 ~ e3 => If(e1, e2, e3) }
 
-  def vec: Parser[Vec] = "[" ~> rep(expr) <~ "]" ^^ { exprs => Vec(exprs.toVector) }
-
-  def expr: Parser[Expr] = atom | iF | fun | apply | lambda | vec
+  def expr: Parser[Expr] = `def` | atom | `if` | lambda | vec | apply
 
   def hexlet: Parser[Seq[Expr]] = rep(expr)
 

@@ -26,6 +26,6 @@ object Spec {
 
   val parsedArgs = List(Num(3), Num(4))
 
-  val addFun = Fun(Id("add"), addLambda)
+  val addFun = Def(Id("add"), addLambda)
 
 }

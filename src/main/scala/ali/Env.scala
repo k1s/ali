@@ -3,11 +3,12 @@ package ali
 import Eval.ExprFun
 import Expr.implicits.ordering
 
-class Env(val parent: Option[Env], val current: Map[String, Expr]) {
+class Env(val parent: Option[Env],
+          val current: Map[String, Expr]) {
 
   private def getFromParent(name: String): Either[String, Expr] = parent match {
     case Some(m) => m.get(name)
-    case _       => Left(s"$name is not defined!")
+    case _       => Left(s"$name is not defined in env")
   }
 
   def get(name: String): Either[String, Expr] = current get name match {
@@ -15,9 +16,16 @@ class Env(val parent: Option[Env], val current: Map[String, Expr]) {
     case None    => getFromParent(name)
   }
 
-  def addFun(fun: Fun): Env = {
-    Env(this, Map(fun.name.id -> fun.body))
+  def addDef(`def`: Def): Env = {
+    Env(this, Map(`def`.name.id -> `def`.expr))
   }
+
+  override def toString =
+    s"""
+      |ENV: ==>
+      |parent: $parent
+      |current: $current
+      """.stripMargin
 
 }
 
